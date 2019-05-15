@@ -112,6 +112,7 @@ class GroupChatRecords(db.Model, DbCommon):
     group_id = db.Column(db.Integer)
     recv_user_id = db.Column(db.Integer)
     content = db.Column(db.LargeBinary(65535))
+    read_type = db.Column(db.Integer, default=1)
     content_type = db.Column(db.Integer)
     add_time = db.Column(db.Integer)
 
@@ -124,6 +125,7 @@ class Relation(db.Model, DbCommon):
     r_id = db.Column(db.Integer, primary_key=True)
     pri_id = db.Column(db.Integer)
     sub_id = db.Column(db.Integer)
+    remark = db.Column(db.String(255))
     relation_type = db.Column(db.Integer)
     add_time = db.Column(db.Integer)
 
