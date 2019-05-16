@@ -245,7 +245,7 @@
     //提交注册表单
     $('#submit_btn').click(function () {
         if (myvalidate.form()) {
-            $.post("/reg", $('form').serialize(), function (res) {
+            $.post("/register", $('form').serialize(), function (res) {
                 if (res.status == 1) {
                     layer.msg('注册成功', {icon: 6, time: 1000}, function () {
                         location.href = "/index";
