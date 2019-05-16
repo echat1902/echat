@@ -2,5 +2,6 @@
 张寿光
 """
 from flask import Blueprint
-zsg = Blueprint('asg',__name__)
-from .views import *
+
+zsg = Blueprint('zsg', __name__)
+from .register import *
