@@ -4,4 +4,5 @@
 from flask import Blueprint
 
 zsg = Blueprint('zsg', __name__)
-from .register import *
+from .register import register
+from .logout import logout
