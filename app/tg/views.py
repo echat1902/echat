@@ -12,7 +12,7 @@ from gevent.pywsgi import WSGIServer
 from flask_socketio import SocketIO
 
 
-# 首页
+#s首页
 @tg.route('/')
 @tg.route('/index')
 def main_index():

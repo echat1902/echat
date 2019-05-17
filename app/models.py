@@ -86,6 +86,8 @@ class Ylgroup(db.Model, DbCommon):
     group_master_id = db.Column(db.Integer)
     num = db.Column(db.Integer, default=1)
     notice = db.Column(db.String(600))
+    head_pic = db.Column(db.String(128))
+    pic_name = db.Column(db.String(128))
     add_time = db.Column(db.Integer)
 
 
@@ -102,19 +104,33 @@ class GroupUser(db.Model, DbCommon):
     add_time = db.Column(db.Integer)
 
 
-class GroupChatRecords(db.Model, DbCommon):
+class ChatRecords(db.Model, DbCommon):
     """
-    聊天记录
+    聊天记录表
     """
-    __tablename__ = 'group_chat_records'
+    __tablename__ = 'chat_records'
     record_id = db.Column(db.Integer, primary_key=True)
     send_user_id = db.Column(db.Integer)
     group_id = db.Column(db.Integer)
     recv_user_id = db.Column(db.Integer)
     content = db.Column(db.LargeBinary(65535))
-    read_type = db.Column(db.Integer, default=1)
     content_type = db.Column(db.Integer)
     add_time = db.Column(db.Integer)
+
+
+class ChatList(db.Model, DbCommon):
+    """
+    主聊天对象表
+    """
+    __tablename__ = 'chat_list'
+    lid = db.Column(db.Integer, primary_key=True)
+    pri_user_id = db.Column(db.Integer)
+    sub_user_id = db.Column(db.Integer)
+    group_id = db.Column(db.Integer)
+    type = db.Column(db.Integer, default=1)
+    content = db.Column(db.String(128))
+    list_sort = db.Column(db.Integer, default=0)
+    update_time = db.Column(db.Integer)
 
 
 class Relation(db.Model, DbCommon):
