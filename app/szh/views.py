@@ -1,6 +1,6 @@
 from flask import render_template,request
 
-from exct import socketio
+from ...manager import socketio
 from .models import *
 from . import szh
 from app.common.funs import *
@@ -29,21 +29,27 @@ def add_fri():
 def msg_manager(data):
     send_list = []
     recv_dict = {}
+    lid = 0
     user_no = data["user_no"]#获取发送者易号
     send_user_id = query_user_id(user_no)#获取当前用户id
     int_time = int(time.time())
     if data["content_type"] == 1: # 1文本内容
         if data["group_id"] == 0:  # 私聊
             send_list = [data["recv_user_no"][0]]#要私聊的用户易号
+            recv_userid = query_user_id(data["recv_user_no"][0])
             send_user_nickname = query_user_self_nink_name(send_user_id)#发送者的用户昵称
+            save_into_chat_list(send_user_id,data["recv_user_no"][0],0,1,data["content"],int_time)#将chatlist的最后一条消息更新
+            lid = get_lid_by_chatlist(send_user_id,sub_id=recv_userid)#从chatlist获得lid
             recv_dict = client_recv_model(user_no,send_user_nickname, data["content"], 1,int_time)#要发送的数据
-        else:  # /其他群id
+        else:  # /其他:群id
             send_user_nickname = query_user_groupnick_name(send_user_id)#获取发送者的群用户昵称
+            save_into_chat_list(send_user_id,0,data["group_id"], 1, data["content"], int_time)#将chatlist的最后一条消息更新
+            lid = get_lid_by_chatlist(send_user_id,group_id=data["group_id"])#从chatlist获得lid
             list_user_id = query_group_userid(data["group_id"])#获取该群群员id列表
             send_list = get_grouplist_recv_userno(list_user_id)#将群员id列表转换为易号列表
             recv_dict = client_recv_model(user_no,send_user_nickname, data["content"], 1,int_time,data["group_id"],data["recv_user_no"])#要发送的数据
     special_id_list = get_special_str(data["recv_user_no"])
-    save_into_record(data, send_user_id, special_id_list,int_time)#将消息存入记录表
+    save_into_record(lid,data, send_user_id, special_id_list,int_time)#将消息存入记录表
     for name in send_list:#易号即房间号
         try:
             emit("recv_msg",recv_dict,room=name)
