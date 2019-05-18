@@ -15,6 +15,10 @@ def chkUserPwd(user_name, user_pwd):
 
     return False
 
+# 根据user_no获取用户信息
+def get_user_info_by_no(user_no):
+    res = User.query.filter_by(user_no=user_no).first().to_json()
+    return res
 
 # 根据id获取用户所有信息
 def get_user_info_by_id(user_id):

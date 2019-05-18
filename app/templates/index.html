@@ -333,6 +333,8 @@
         $(document).on('click', '.user_list li', function () {
             lid = $(this).attr("id");
             user_title=$(this).attr('title');
+            $(this).addClass('user_active');
+            $(this).siblings().removeClass('user_active');
             $('#chatbox').html('');
             //获取聊天记录
             $.get('/get_chat_records?user_id=' + user_id + '&lid=' + lid, function (data) {
