@@ -18,6 +18,9 @@ def get_now_date():
     now_time = time.time()
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(now_time))
 
+# 将时间戳转为日期格式
+def get_date(int_time):
+    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int_time))
 
 # 获取当前时间戳（毫秒）
 def get_mill_time():

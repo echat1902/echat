@@ -56,6 +56,17 @@ class DbCommon():
     def delete(self):
         db.session.delete(self)
 
+    # 查询对象转json
+    def to_json(self):
+        dict = self.__dict__
+        if "_sa_instance_state" in dict:
+            del dict["_sa_instance_state"]
+        # 如果是bytes类型，就转为str类型
+        for k, v in dict.items():
+            if isinstance(v, bytes):
+                dict[k] = str(v, encoding='utf-8')
+        return dict
+
 
 class User(db.Model, DbCommon):
     """
@@ -110,6 +121,7 @@ class ChatRecords(db.Model, DbCommon):
     """
     __tablename__ = 'chat_records'
     record_id = db.Column(db.Integer, primary_key=True)
+    lid = db.Column(db.Integer)
     send_user_id = db.Column(db.Integer)
     group_id = db.Column(db.Integer)
     recv_user_id = db.Column(db.Integer)

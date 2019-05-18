@@ -12,16 +12,66 @@ from gevent.pywsgi import WSGIServer
 from flask_socketio import SocketIO
 
 
-#s首页
+# 首页
 @tg.route('/')
 @tg.route('/index')
 def main_index():
     # 判断用户是否已经登录，并获取用户的易号
-    user_no = chkLogin()
+    # user_no = chkLogin()
+    user_no = 10001
+    user_id = 1
     if user_no:
-        return render_template('index.html')
+        # 获取用户信息
+        userinfo = User.query.filter_by(user_id=user_id).first().to_json()
+        # 获取主聊天对象
+        # res =db.session.query(ChatList).filter_by(pri_user_id=user_id).all()
+        res = ChatList.query.filter_by(pri_user_id=user_id).all()
+        # 获取主聊天对象的信息
+        infos = []
+        for i in res:
+            if i.sub_user_id:
+                # 查出用户信息
+                info = User.query.filter_by(user_id=i.sub_user_id).first()
+            else:
+                # 查出群信息
+                info = Ylgroup.query.filter_by(group_id=i.group_id).first()
+
+            info.content = i.content
+            info.lid = i.lid
+            info.update_time = get_date(i.update_time)
+            infos.append(info)
+            data = [userinfo, infos]
+        return render_template('index.html', data=data)
     return redirect('/login')
 
+
+# 获取聊天记录
+@tg.route('/get_chat_records')
+def get_chat_records():
+    lid = request.args.get('lid')
+    user_id = request.args.get('user_id')
+
+    # 获取聊天对象
+    res = ChatList.query.filter_by(lid=lid).first()
+    # 获取对方信息
+    # subinfo = {}
+    # if res.sub_user_id:
+    #     subinfo = User.query.filter_by(user_id=res.sub_user_id).first().to_json()
+
+    # 获取聊天记录
+    res = ChatRecords.query.filter_by(lid=lid).order_by(db.asc(ChatRecords.add_time)).limit(10).all()
+    # res = db.session.query(ChatRecords).join(User, ChatRecords.send_user_id == User.user_id).filter(
+    #     ChatRecords.lid == lid).order_by(db.desc(ChatRecords.add_time)).limit(10).all()
+
+    # print(res)
+    # records = {'userinfo': subinfo, 'records': []}
+    records = []
+    for i in res:
+        uinfo = User.query.filter_by(user_id=i.send_user_id).first().to_json()
+        i.userinfo = uinfo
+        records.append(i.to_json())
+    print(records)
+    return json.dumps(records)
 
 # 登录
 @tg.route('/login', methods=['GET', 'POST'])
