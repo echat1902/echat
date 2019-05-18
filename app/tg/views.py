@@ -17,12 +17,11 @@ from flask_socketio import SocketIO
 @tg.route('/index')
 def main_index():
     # 判断用户是否已经登录，并获取用户的易号
-    # user_no = chkLogin()
-    user_no = 10001
-    user_id = 1
+    user_no = chkLogin()
     if user_no:
         # 获取用户信息
-        userinfo = User.query.filter_by(user_id=user_id).first().to_json()
+        userinfo = get_user_info_by_no(user_no)
+        user_id = userinfo['user_id']
         # 获取主聊天对象
         # res =db.session.query(ChatList).filter_by(pri_user_id=user_id).all()
         res = ChatList.query.filter_by(pri_user_id=user_id).all()
@@ -73,6 +72,7 @@ def get_chat_records():
     print(records)
     return json.dumps(records)
 
+
 # 登录
 @tg.route('/login', methods=['GET', 'POST'])
 def login():
@@ -106,8 +106,6 @@ def login():
             return resp
         else:
             return ret_error('用户名或密码错误')
-
-
 
 # # 添加一个用户
 # @tg.route('/add_one')
