@@ -1,6 +1,7 @@
 
 from app.common.funs import *
 from app.models import *
+from chat_project.echat.app.models import ChatList, ChatRecords
 
 
 def server_recv_model(msg_dict):
@@ -49,9 +50,10 @@ def get_grouplist_recv_userno(list_user_id):
 
 
 
-def save_into_record(msg_dict,send_user_id,recv_special,int_time):
+def save_into_record(lid,msg_dict,send_user_id,recv_special,int_time):
     """将消息记录存入数据库的消息记录表"""
     record_dict={
+        "lid":lid,
         "send_user_id":send_user_id,
         "group_id":msg_dict["group_id"],
         "recv_user_id":recv_special,
@@ -59,9 +61,30 @@ def save_into_record(msg_dict,send_user_id,recv_special,int_time):
         "content_type":msg_dict["content_type"],
         "add_time":int_time
     }
-    GroupChatRecords.add_one(**record_dict)
+    ChatRecords.add_one(**record_dict)
 
+def save_into_chat_list(pri_id,sub_id,group_id,type,content,update_time):
+    """将最后一条消息存入chatlist中"""
+    the_dict = {
+        "pri_user_id":pri_id,
+        "sub_user_id":sub_id,
+        "group_id":group_id,
+        "type":type,
+        "content":content,
+        # "list_sort":list_sort,
+        "update_time":update_time
+    }
+    if db.session.query(ChatList.lid).filter(ChatList.pri_user_id==pri_id,ChatList.sub_user_id==sub_id,ChatList.group_id==group_id).first()[0]:
+        ChatList.update(**the_dict)
+    else:
+        ChatList.add_one(**the_dict)
 
+def get_lid_by_chatlist(pri_id,sub_id=None,group_id=None):
+    "获取lid"
+    if sub_id:
+        return db.session.query(ChatList.lid).filter(ChatList.pri_user_id==pri_id,ChatList.sub_user_id==sub_id).first()[0]
+    else:
+        return db.session.query(ChatList.lid).filter(ChatList.pri_user_id==pri_id,ChatList.group_id==group_id).first()[0]
 
 def get_special_id(list_special_no):
     if list_special_no:
