@@ -10,16 +10,18 @@ from . import zsg
 def logout():
     """
     退出登录视图函数
-    :return: 重定向到首页，清除cookie
+    :return: 重定向到登录页，清除登录信息
     """
 
-    # 当用户退出时，从cookie中取出user_no
-    user_no = request.cookies['user_no']
-    # 删除后端session中的登录信息
-    del session[str(user_no)]
-    # 重定向到首页
-    resp = redirect('/index')
-    # 删除cookie中的登陆信息
-    resp.delete_cookie('user_no')
+    # 重定向到登录页
+    resp = redirect('/login')
+
+    if 'user_no' in request.cookies:
+        # 当用户退出时，从cookie中取出user_no
+        user_no = request.cookies['user_no']
+        # 删除后端session中的登录信息
+        del session[str(user_no)]
+        # 删除cookie中的登陆信息
+        resp.delete_cookie('user_no')
 
     return resp
