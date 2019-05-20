@@ -1,6 +1,6 @@
 from flask import render_template,request
 
-from ...manager import socketio
+from manager import socketio
 from .models import *
 from . import szh
 from app.common.funs import *
@@ -32,7 +32,7 @@ def msg_manager(data):
     lid = 0
     user_no = data["user_no"]#获取发送者易号
     send_user_id = query_user_id(user_no)#获取当前用户id
-    int_time = int(time.time())
+    int_time = get_mill_time()
     if data["content_type"] == 1: # 1文本内容
         if data["group_id"] == 0:  # 私聊
             send_list = [data["recv_user_no"][0]]#要私聊的用户易号
@@ -55,7 +55,7 @@ def msg_manager(data):
             emit("recv_msg",recv_dict,room=name)
         except Exception as e:
             pass
-            # print("该用户不在线，发送失败")
+            # print("发送失败",e)
 
 
 
