@@ -61,6 +61,7 @@ def register():
         user.user_no = gen_user_no()
         user.user_nick_name = user_name
         user.user_pwd = gen_user_pwd(user_pwd)
+        user.pic_name = "untitled.jpg"
         user.add_time = get_time()
 
         # 向数据库中插入数据
