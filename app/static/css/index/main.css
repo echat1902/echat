@@ -62,7 +62,19 @@ ul li{
     justify-content: center;
     align-items: center;
 }
-
+.red_circle{
+	float:right;
+	width: 20px;
+	height: 20px;
+	background: red;
+	color: #fff;
+	font-size: 14px;
+	text-align: center;
+	line-height: 20px;
+	border-radius: 10px;
+	clear: both;
+	display: none;
+}
 .wechat{
     width:860px;
     height:680px;

@@ -10,7 +10,7 @@ import time, datetime, random
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
 from flask_socketio import SocketIO
-
+# from manager import socketio
 
 # 首页
 @tg.route('/')
@@ -24,13 +24,17 @@ def main_index():
         user_id = userinfo['user_id']
         # 获取主聊天对象
         # res =db.session.query(ChatList).filter_by(pri_user_id=user_id).all()
-        res = ChatList.query.filter_by(pri_user_id=user_id).all()
+        res = ChatList.query.filter(or_(ChatList.pri_user_id==user_id, ChatList.sub_user_id==user_id)).all()
         # 获取主聊天对象的信息
         infos = []
         for i in res:
+            if i.sub_user_id == user_id:
+                o_user_id = i.pri_user_id
+            else:
+                o_user_id = i.sub_user_id
             if i.sub_user_id:
                 # 查出用户信息
-                info = User.query.filter_by(user_id=i.sub_user_id).first()
+                info = User.query.filter_by(user_id=o_user_id).first()
             else:
                 # 查出群信息
                 info = Ylgroup.query.filter_by(group_id=i.group_id).first()
@@ -70,15 +74,16 @@ def get_chat_records():
         uinfo = User.query.filter_by(user_id=i.send_user_id).first().to_json()
         i.userinfo = uinfo
         records.append(i.to_json())
-    print(records)
     return json.dumps(records)
+
 
 
 # 登录
 @tg.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        user_no = chkLogin()
+        # user_no = chkLogin()
+        user_no = None
         if user_no:
             return redirect('/index?user_no=' + str(user_no))
         return render_template('login.html')
