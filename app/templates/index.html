@@ -330,7 +330,7 @@
 
     //三图标
     window.onload = function () {
-        console.log("{{data[0].user_nick_name}}");
+
         //生成聊天信息
         function create_chart(self, content) {
             pic_name = eval("'" + content["pic_name"] + "'"); // "我是unicode编码"
@@ -344,13 +344,12 @@
         //等待服务器推送消息
         namespace = '/flasksocketio';
         var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
-        {#        socket.on('connect', function (res) {#}
-        {#            socket.emit('join room', {'user_id': user_id});#}
-        {#        });#}
+
         socket.on('server_response', function (res) {
             res = JSON.parse(res);
             lid = res.lid;
             num_area = $('#'+lid).children('div').eq(0);
+            $('#'+lid).children('div').eq(2).children('p').eq(1).html(res.send_msg);
             if($('#'+lid).hasClass('user_active')){
                 msg_nums[lid] = 0;
                 num_area.css('display','none');
@@ -367,9 +366,14 @@
                 msg_nums[lid] = msg_nums[lid]+1
             }
 
-
         });
 
+        // 将所有聊天对象都加入房间
+        $('.user_list li').each(function (i) {
+            lid = $(this).attr('id');
+            //加入房间
+            socket.emit('join room', {'lid': lid});
+        });
 
         //获取聊天记录
         $(document).on('click', '.user_list li', function () {
@@ -380,8 +384,6 @@
             $('#'+lid).children('div').eq(0).css('display','none');
             msg_nums[lid] = 0;
             $('#chatbox').html('');
-            //加入房间
-            socket.emit('join room', {'lid': lid});
             //获取聊天记录
             $.get('/get_chat_records?user_id=' + user_id + '&lid=' + lid, function (data) {
                 $('.windows_top_box .user_title').html(user_title);
@@ -542,15 +544,13 @@
                 var pic_name = "{{data[0].pic_name}}";
                 var user_nick_name = "{{data[0].user_nick_name}}";
                 lid = $('.user_active').attr('id')
-                console.log(lid)
                 chat = $('#chatbox');
                 talk = $('#talkbox');
                 namespace = '/flasksocketio';
-                console.log(user_nick_name)
                 var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
                 content = {'lid':lid,'user_nick_name': user_nick_name, 'pic_name': pic_name, 'send_msg': msg.html()}
                 socket.emit('imessage', content);
-                create_chart('me', content)
+                create_chart('me', content);
                 msg.html('');
                 scrollTop = chat[0].scrollHeight;
                 chat.parent().scrollTop(scrollTop);
