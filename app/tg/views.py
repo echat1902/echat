@@ -35,11 +35,12 @@ def main_index():
                 # 查出群信息
                 info = Ylgroup.query.filter_by(group_id=i.group_id).first()
 
-            info.content = i.content
-            info.lid = i.lid
-            info.update_time = get_date(i.update_time)
-            infos.append(info)
-            data = [userinfo, infos]
+            if info:
+                info.content = i.content
+                info.lid = i.lid
+                info.update_time = get_date(i.update_time)
+                infos.append(info)
+        data = [userinfo, infos]
         return render_template('index.html', data=data)
     return redirect('/login')
 
