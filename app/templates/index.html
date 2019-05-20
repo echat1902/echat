@@ -26,11 +26,11 @@
         <div class="sidestrip">
             <div class="am-dropdown" data-am-dropdown>
                 <!--头像插件-->
-                <div class="own_head am-dropdown-toggle" style="background: url(/static/images/head/{{data[0].pic_name}})"></div>
+                <div class="own_head am-dropdown-toggle" style="background: url(/static/images/head/{{data[0].pic_name}});background-size: contain;"></div>
                 <div class="am-dropdown-content">
                     <div class="own_head_top">
                         <div class="own_head_top_text">
-                            <p class="own_name">{{data[0].user_nick_name}}<img src="/static/images/icon/head.png" alt=""/></p>
+                            <p class="own_name">{{data[0].user_nick_name}}<img src="/static/images/icon/head.png" alt=""  /></p>
                             <p class="own_numb">易号：{{data[0].user_no}}</p>
                         </div>
                         <img src="/static/images/own_head.jpg" alt=""/>
@@ -264,7 +264,7 @@
                         <li><a href=""><img src="/static/images/icon/icon7.png"/></a></li>
                         <li><a href=""><img src="/static/images/icon/icon8.png"/></a></li>
                         <li><a href=""><img src="/static/images/icon/icon9.png"/></a></li>
-                        <li><a href=""><img src="/static/images/icon/icon10.png"/></a></li>
+                        <li><a href="/logout" style="display: block; height: 34px; width: 26px"><img src="/static/images/icon/icon10.png"/></a></li>
                     </ul>
                     <div class="extend" class="am-btn am-btn-success"
                          data-am-offcanvas="{target: '#doc-oc-demo3'}"></div>
