@@ -73,13 +73,13 @@ def register():
             # 暂不实现，暂时打印到服务端控制台中
             print(e_db_create)
             # 把错误信息返回给前端
-            return ret_error("该用户名已存在", 105)
+            return ret_error("该用户名已存在")
         else:
             # 手动提交，注册中的自动登录部分需要从数据库中查找数据
             db.session.commit()
 
         # 把成功信息返回给前端
-        return ret_sucess("注册成功", 1)
+        return ret_sucess("注册成功")
 
 
 def gen_user_no():
