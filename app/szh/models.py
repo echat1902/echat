@@ -1,7 +1,7 @@
 
 from app.common.funs import *
 from app.models import *
-from chat_project.echat.app.models import ChatList, ChatRecords
+from ..models import ChatList, ChatRecords
 
 
 def server_recv_model(msg_dict):
@@ -10,15 +10,25 @@ def server_recv_model(msg_dict):
     group_id = msg_dict["group_id"]#int 0私聊易号/群id
     recv_user_no = msg_dict["recv_user_no"]#list->str群聊中＠的用户[]
     content = msg_dict["content"]#消息内容
-    content_type = msg_dict["content_type"]#int消息格式1文本/2文件/3未接受消息
+    content_type = msg_dict["content_type"]#int消息格式1文本/2文件
 
 def client_recv_model(user_no,nick_name,content,content_type,int_time,group_id=0,recv_user_no=[]):
-    """服务端发送的数据格式"""
+    """
+    服务端发送的数据格式
+    :param user_no:
+    :param nick_name:
+    :param content:
+    :param content_type:
+    :param int_time:
+    :param group_id:
+    :param recv_user_no:
+    :return:
+    """
     msg_dict = {
         "send_user_no":user_no,#发送者易号
         "send_user_nick_name":nick_name,#发送者群昵称/私聊则本名
         "content":content,#消息内容
-        "content_type": content_type, # int消息格式消息格式1文本/2文件/3未接受消息
+        "content_type": content_type, # int消息格式消息格式1文本/2文件
         "send_time":int_time,
         "group_id":group_id,#0私聊/群id
         "recv_no": recv_user_no,  # 群聊＠用户名，默认为[]
@@ -44,14 +54,26 @@ def get_special_str(recv_userno_list):
     return str_id
 
 def get_grouplist_recv_userno(list_user_id):
-    """根据用户id列表获得用户易号列表"""
+    """
+    根据用户id列表获得用户易号列表
+    :param list_user_id:
+    :return:
+    """
     return [query_user_no(x) for x in list_user_id]
 
 
 
 
 def save_into_record(lid,msg_dict,send_user_id,recv_special,int_time):
-    """将消息记录存入数据库的消息记录表"""
+    """
+    将消息记录存入数据库的消息记录表
+    :param lid:
+    :param msg_dict:
+    :param send_user_id:
+    :param recv_special:
+    :param int_time:
+    :return:
+    """
     record_dict={
         "lid":lid,
         "send_user_id":send_user_id,
@@ -64,7 +86,16 @@ def save_into_record(lid,msg_dict,send_user_id,recv_special,int_time):
     ChatRecords.add_one(**record_dict)
 
 def save_into_chat_list(pri_id,sub_id,group_id,type,content,update_time):
-    """将最后一条消息存入chatlist中"""
+    """
+    将最后一条消息存入chatlist中
+    :param pri_id:
+    :param sub_id:
+    :param group_id:
+    :param type:
+    :param content:
+    :param update_time:
+    :return:
+    """
     the_dict = {
         "pri_user_id":pri_id,
         "sub_user_id":sub_id,
@@ -80,13 +111,24 @@ def save_into_chat_list(pri_id,sub_id,group_id,type,content,update_time):
         ChatList.add_one(**the_dict)
 
 def get_lid_by_chatlist(pri_id,sub_id=None,group_id=None):
-    "获取lid"
+    """
+    获取lid
+    :param pri_id:
+    :param sub_id:
+    :param group_id:
+    :return:
+    """
     if sub_id:
         return db.session.query(ChatList.lid).filter(ChatList.pri_user_id==pri_id,ChatList.sub_user_id==sub_id).first()[0]
     else:
         return db.session.query(ChatList.lid).filter(ChatList.pri_user_id==pri_id,ChatList.group_id==group_id).first()[0]
 
 def get_special_id(list_special_no):
+    """
+    根据＠user_no列表获取user_id列表
+    :param list_special_no:
+    :return:
+    """
     if list_special_no:
         return [query_user_id(x) for x in list_special_no]
 
