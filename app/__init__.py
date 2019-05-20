@@ -42,13 +42,13 @@ def create_app():
     from .hhb import hhb as hhb_blueprint
     app.register_blueprint(hhb_blueprint)
 
-    from .szh import szh as hhb_blueprint
-    app.register_blueprint(hhb_blueprint)
+    from .szh import szh as szh_blueprint
+    app.register_blueprint(szh_blueprint)
 
-    from .wxx import wxx as hhb_blueprint
-    app.register_blueprint(hhb_blueprint)
+    from .wxx import wxx as wxx_blueprint
+    app.register_blueprint(wxx_blueprint)
 
-    from .zsg import zsg as hhb_blueprint
-    app.register_blueprint(hhb_blueprint)
+    from .zsg import zsg as zsg_blueprint
+    app.register_blueprint(zsg_blueprint)
 
     return app
