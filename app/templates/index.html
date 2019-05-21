@@ -91,12 +91,8 @@
                 <ul class="user_list">
                     {% for i in data[1] %}
                         <li
-                                {% if loop.first %}
-                                    class="user_active"
-                                {% endif %}
-                                    id={{ i.lid }}
-                                            title={{ i.user_nick_name }}{{ i.group_name }}
-
+                            id={{ i.lid }}
+                            title={{ i.user_nick_name }}{{ i.group_name }}
                         >
                             <div class="red_circle">1</div>
                             <div class="user_head"><img src=/static/images/head/{{ i.pic_name }}/></div>
@@ -274,7 +270,7 @@
                     <div class="extend" class="am-btn am-btn-success"
                          data-am-offcanvas="{target: '#doc-oc-demo3'}"></div>
                     <!-- 侧边栏内容 -->
-                    <div id="doc-oc-demo3" class="am-offcanvas">
+                    <div id="doc-oc-demo3" class="am-offcanvas" style="height: 680px;margin:auto">
                         <div class="am-offcanvas-bar am-offcanvas-bar-flip">
                             <div class="am-offcanvas-content">
                                 <p><a href="http://music.163.com/#/song?id=385554" target="_blank">网易音乐</a></p>
@@ -377,6 +373,7 @@
 
         //获取聊天记录
         $(document).on('click', '.user_list li', function () {
+            $('#talkbox').css('display','block');
             lid = $(this).attr("id");
             user_title = $(this).attr('title');
             $(this).addClass('user_active');
