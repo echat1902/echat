@@ -355,11 +355,12 @@
                 }
             }else{
                 num_area.css('display','block');
-                if(msg_nums[lid]){
-                    num_area.html(msg_nums[lid]);
+                if(msg_nums[lid]) {
+                    msg_nums[lid] = msg_nums[lid]+1
+                }else{
+                    msg_nums[lid] = 1;s
                 }
-
-                msg_nums[lid] = msg_nums[lid]+1
+                num_area.html(msg_nums[lid]);
             }
 
         });
