@@ -25,53 +25,86 @@ def add_fri():
     return '进入群成功'
 
 
-@socketio.on("send_msg")
-def msg_manager(data):
-    send_list = []
-    recv_dict = {}
-    lid = 0
-    user_no = data["user_no"]#获取发送者易号
-    send_user_id = query_user_id(user_no)#获取当前用户id
-    int_time = get_mill_time()
-    if data["content_type"] == 1: # 1文本内容
-        if data["group_id"] == 0:  # 私聊
-            send_list = [data["recv_user_no"][0]]#要私聊的用户易号
-            recv_userid = query_user_id(data["recv_user_no"][0])
-            send_user_nickname = query_user_self_nink_name(send_user_id)#发送者的用户昵称
-            save_into_chat_list(send_user_id,data["recv_user_no"][0],0,1,data["content"],int_time)#将chatlist的最后一条消息更新
-            lid = get_lid_by_chatlist(send_user_id,sub_id=recv_userid)#从chatlist获得lid
-            recv_dict = client_recv_model(user_no,send_user_nickname, data["content"], 1,int_time)#要发送的数据
-        else:  # /其他:群id
-            send_user_nickname = query_user_groupnick_name(send_user_id)#获取发送者的群用户昵称
-            save_into_chat_list(send_user_id,0,data["group_id"], 1, data["content"], int_time)#将chatlist的最后一条消息更新
-            lid = get_lid_by_chatlist(send_user_id,group_id=data["group_id"])#从chatlist获得lid
-            list_user_id = query_group_userid(data["group_id"])#获取该群群员id列表
-            send_list = get_grouplist_recv_userno(list_user_id)#将群员id列表转换为易号列表
-            recv_dict = client_recv_model(user_no,send_user_nickname, data["content"], 1,int_time,data["group_id"],data["recv_user_no"])#要发送的数据
-    special_id_list = get_special_str(data["recv_user_no"])
-    save_into_record(lid,data, send_user_id, special_id_list,int_time)#将消息存入记录表
-    for name in send_list:#易号即房间号
-        try:
-            emit("recv_msg",recv_dict,room=name)
-        except Exception as e:
-            pass
-            # print("发送失败",e)
+@socketio.on('imessage', namespace='/flasksocketio')
+def test_message(message):
+    # obj = get_obj_by_lid(message["lid"])
+    # int_time = get_mill_time()
+    # if obj["type"] == 1:#私聊
+    #
+    # print(message)
+    socketio.emit('server_response', json.dumps(message), room=message['lid'],namespace='/flasksocketio')
+
+
+@socketio.on('join room', namespace='/flasksocketio')
+def test_connect(data):
+    lid = data['lid']
+    join_room(lid)
 
 
 
-@socketio.on("connect")
-def connect(msg):
-    user_no = msg["user_no"]
-    join_room(user_no)#触发事件加入用户易号名房间，实现一人一房间
-
-    return_msg = json.dumps("succes")#此处应进行未接受消息处理
-    emit("connect_status",return_msg)
+@socketio.on('disconnect', namespace='/chat')
+def test_disconnect(data):
+    lid = data['lid']
+    leave_room(lid)
 
 
-@socketio.on("leave")
-def connect(msg):
-    room = msg["user_no"]
-    leave_room(room)#触发事件时离开房间
+
+
+
+# @socketio.on("send_msg")
+# def msg_manager(data):
+#     send_list = []
+#     recv_dict = {}
+#     lid = 0
+#     user_no = data["user_no"]#获取发送者易号
+#     send_user_id = query_user_id(user_no)#获取当前用户id
+#     int_time = get_mill_time()
+#     if data["content_type"] == 1: # 1文本内容
+#         if data["group_id"] == 0:  # 私聊
+#             send_list = [data["recv_user_no"][0]]#要私聊的用户易号
+#             recv_userid = query_user_id(data["recv_user_no"][0])
+#             send_user_nickname = query_user_self_nink_name(send_user_id)#发送者的用户昵称
+#             save_into_chat_list(send_user_id,data["recv_user_no"][0],0,1,data["content"],int_time)#将chatlist的最后一条消息更新
+#             lid = get_lid_by_chatlist(send_user_id,sub_id=recv_userid)#从chatlist获得lid
+#             recv_dict = client_recv_model(user_no,send_user_nickname, data["content"], 1,int_time)#要发送的数据
+#         else:  # /其他:群id
+#             send_user_nickname = query_user_groupnick_name(send_user_id,data["group_id"])#获取发送者的群用户昵称
+#             save_into_chat_list(send_user_id,0,data["group_id"], 1, data["content"], int_time)#将chatlist的最后一条消息更新
+#             lid = get_lid_by_chatlist(send_user_id,group_id=data["group_id"])#从chatlist获得lid
+#             list_user_id = query_group_userid(data["group_id"])#获取该群群员id列表
+#             send_list = get_grouplist_recv_userno(list_user_id)#将群员id列表转换为易号列表
+#             recv_dict = client_recv_model(user_no,send_user_nickname, data["content"], 1,int_time,data["group_id"],data["recv_user_no"])#要发送的数据
+#     special_id_list = get_special_str(data["recv_user_no"])
+#     save_into_record(lid,data, send_user_id, special_id_list,int_time)#将消息存入记录表
+#     for name in send_list:#易号即房间号
+#         try:
+#             emit("recv_msg",recv_dict,room=name)
+#         except Exception as e:
+#             print("发送失败",e)
+
+
+#
+# @socketio.on("connect")
+# def connect(msg):
+#     user_no = msg["user_no"]
+#     join_room(user_no)#触发事件加入用户易号名房间，实现一人一房间
+#     msgs = get_after_leave_msg(user_no)
+#     for x in msgs:
+#         emit("leave_msg",x,room=user_no)
+#
+#
+#
+#
+# @socketio.on("leave")
+# def leave(msg):
+#     room = msg["user_no"]
+#     leave_room(room)#触发事件时离开房间
+#     user_id = query_user_id(msg["user_no"])
+#     int_time = get_mill_time()
+#     try:
+#         ChatRecords.add_one(send_user_id=user_id,content_type=5,add_time=int_time)
+#     except Exception as e:
+#         print(e)
 
 
 
