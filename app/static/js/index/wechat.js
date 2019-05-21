@@ -12,13 +12,37 @@ $(document).click(function (e) {
     if(!$target.is('.am-dropdown-content')){
         $('.am-dropdown-content').css('display','none')
     }
-})
+});
+// 按回车键发送消息
+$('.message_frame').keydown(function (e) {
+    if (e.keyCode == 13 && e.ctrlKey) {
+        console.log('回车加ctrl');
+        // 光标往后移
+        $(this).append("<div><br></div>");
+        obj = $('.message_frame')[0];
+        var len = obj.innerText.length;
+        var sel = document.getSelection();
+        var range = document.createRange();
+        range.selectNodeContents(obj);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+
+    } else if (e.keyCode == 13) {
+        console.log('回车');
+        e.cancelBubble=true;
+        e.preventDefault();
+        e.stopPropagation();
+        $('#send').trigger("click")
+    }
+
+});
 
 $(function () {
     $(".office_text").panel({iWheelStep: 32});
 });
 
-//tab for three icon
+//tab for three icon	
 $(document).ready(function () {
     $(".sidestrip_icon a").click(function () {
         $(".sidestrip_icon a").eq($(this).index()).addClass("cur").siblings().removeClass('cur');
@@ -37,3 +61,58 @@ $(document).ready(function () {
         $('#input_box').css('background', '');
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

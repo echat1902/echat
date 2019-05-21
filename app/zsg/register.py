@@ -14,6 +14,7 @@ from flask import render_template, request
 
 from app import db
 from app.common.funs import ret_sucess, ret_error, get_time
+from app.zsg.form_check import FormCheck
 from . import zsg
 from ..models import User
 
@@ -29,22 +30,16 @@ def register():
     if request.method == "GET":
         return render_template('reg.html')
     else:
-        # 从表单中获取用户名和密码
+        # 从表单中获取用户名和密码，并校验
         user_name = request.form['user_name']
-        if user_name == '':
-            # 把错误信息返回给前端
-            return ret_error("用户名不能为空")
-        elif len(user_name) >= 128:
-            # 把错误信息返回给前端
-            return ret_error("用户名长度应该小于128位")
+        res = FormCheck.name_check(user_name)
+        if res != True:
+            return ret_error(res)
 
         user_pwd = request.form['user_pwd']
-        if user_pwd == '':
-            # 把错误信息返回给前端
-            return ret_error("密码不能为空")
-        elif len(user_pwd) >= 40:
-            # 把错误信息返回给前端
-            return ret_error("密码长度应该小于40位")
+        res = FormCheck.pwd_check(user_pwd)
+        if res != True:
+            return ret_error(res)
 
         user_pwd_confirm = request.form['user_rpwd']
         if user_pwd != user_pwd_confirm:
@@ -61,6 +56,7 @@ def register():
         user.user_no = gen_user_no()
         user.user_nick_name = user_name
         user.user_pwd = gen_user_pwd(user_pwd)
+        user.pic_name = "untitled.jpg"
         user.add_time = get_time()
 
         # 向数据库中插入数据
@@ -72,13 +68,13 @@ def register():
             # 暂不实现，暂时打印到服务端控制台中
             print(e_db_create)
             # 把错误信息返回给前端
-            return ret_error("该用户名已存在", 105)
+            return ret_error("该用户名已存在")
         else:
             # 手动提交，注册中的自动登录部分需要从数据库中查找数据
             db.session.commit()
 
         # 把成功信息返回给前端
-        return ret_sucess("注册成功", 1)
+        return ret_sucess("注册成功")
 
 
 def gen_user_no():
@@ -100,10 +96,10 @@ def gen_user_no():
 
 
 def gen_user_pwd(user_pwd):
-    '''
+    """
     生成user_pwd的md5值
     :param user_pwd: 用户输入的密码
     :return: user_pwd的md5值
-    '''
+    """
 
     return hashlib.md5(user_pwd.encode('utf-8')).hexdigest()

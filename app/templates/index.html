@@ -21,17 +21,19 @@
 <body>
 <div class="box">
     <div class="wechat">
-        <input type="hidden" id="user_id" value={{data[0].user_id}} >
-        <input type="hidden" id="user_no" value={{data[0].user_no}} >
+        <input type="hidden" id="user_id" value={{ data[0].user_id }}>
+        <input type="hidden" id="user_no" value={{ data[0].user_no }}>
         <div class="sidestrip">
             <div class="am-dropdown" data-am-dropdown>
                 <!--头像插件-->
-                <div class="own_head am-dropdown-toggle" style="background: url(/static/images/head/{{data[0].pic_name}});background-size: contain;"></div>
+                <div class="own_head am-dropdown-toggle"
+                     style="background: url(/static/images/head/{{ data[0].pic_name }});background-size: contain;"></div>
                 <div class="am-dropdown-content">
                     <div class="own_head_top">
                         <div class="own_head_top_text">
-                            <p class="own_name">{{data[0].user_nick_name}}<img src="/static/images/icon/head.png" alt=""  /></p>
-                            <p class="own_numb">易号：{{data[0].user_no}}</p>
+                            <p class="own_name">{{ data[0].user_nick_name }}<img src="/static/images/icon/head.png"
+                                                                                 alt=""/></p>
+                            <p class="own_numb">易号：{{ data[0].user_no }}</p>
                         </div>
                         <img src="/static/images/own_head.jpg" alt=""/>
                     </div>
@@ -88,26 +90,24 @@
             <div class="office_text">
                 <ul class="user_list">
                     {% for i in data[1] %}
-                    <li
-                            {% if loop.first %}
-                            class="user_active"
-                            {% endif %}
-                            id={{i.lid}}
-                            title = {{i.user_nick_name}}{{i.group_name}}
-                    >
-                        <div class="user_head"><img src=/static/images/head/{{i.pic_name}}/></div>
-                        <div class="user_text">
-                            <p class="user_name">
-                                {% if not i.user_nick_name %}
-                                {{i.group_name}}
-                                {% else %}
-                                {{i.user_nick_name}}
-                                {% endif %}
-                            </p>
-                            <p class="user_message">{{i.content}}</p>
-                        </div>
-                        <div class="user_time">{{i.update_time}}</div>
-                    </li>
+                        <li
+                            id={{ i.lid }}
+                            title={{ i.user_nick_name }}{{ i.group_name }}
+                        >
+                            <div class="red_circle">1</div>
+                            <div class="user_head"><img src=/static/images/head/{{ i.pic_name }}/></div>
+                            <div class="user_text">
+                                <p class="user_name">
+                                    {% if not i.user_nick_name %}
+                                        {{ i.group_name }}
+                                    {% else %}
+                                        {{ i.user_nick_name }}
+                                    {% endif %}
+                                </p>
+                                <p class="user_message">{{ i.content }}</p>
+                            </div>
+                            <div class="user_time">{{ i.update_time }}</div>
+                        </li>
                     {% endfor %}
                 </ul>
             </div>
@@ -264,12 +264,13 @@
                         <li><a href=""><img src="/static/images/icon/icon7.png"/></a></li>
                         <li><a href=""><img src="/static/images/icon/icon8.png"/></a></li>
                         <li><a href=""><img src="/static/images/icon/icon9.png"/></a></li>
-                        <li><a href="/logout" style="display: block; height: 34px; width: 26px"><img src="/static/images/icon/icon10.png"/></a></li>
+                        <li><a href="/logout" style="display: block; height: 34px; width: 26px"><img
+                                src="/static/images/icon/icon10.png"/></a></li>
                     </ul>
                     <div class="extend" class="am-btn am-btn-success"
                          data-am-offcanvas="{target: '#doc-oc-demo3'}"></div>
                     <!-- 侧边栏内容 -->
-                    <div id="doc-oc-demo3" class="am-offcanvas">
+                    <div id="doc-oc-demo3" class="am-offcanvas" style="height: 680px;margin:auto">
                         <div class="am-offcanvas-bar am-offcanvas-bar-flip">
                             <div class="am-offcanvas-content">
                                 <p><a href="http://music.163.com/#/song?id=385554" target="_blank">网易音乐</a></p>
@@ -319,39 +320,83 @@
 <script src="/static/bootstrap/js/bootstrap.min.js"></script>
 <script src="/static/webuploader/webuploader.min.js"></script>
 <script src="/static/imagePreview/js/pictureViewer.js"></script>
-
+<script type="text/javascript" src="//cdn.bootcss.com/socket.io/1.5.1/socket.io.min.js"></script>
 <script type="text/javascript">
     var now_time = (new Date()).getTime();
+
     //三图标
     window.onload = function () {
-         //用户id
-        var user_id = $('#user_id').val();
-        //用户易号
-        var user_no = $('#user_no').val();
-        var pic_name = "{{data[0].pic_name}}"
+
+        //生成聊天信息
+        function create_chart(self, content) {
+            pic_name = eval("'" + content["pic_name"] + "'"); // "我是unicode编码"
+            user_nick_name = eval("'" + content["user_nick_name"] + "'"); // "我是unicode编码"
+            send_msg = eval("'" + content["send_msg"] + "'"); // "我是unicode编码"
+            info = '<li class=' + self + '><img src="/static/images/head/' + pic_name + '" title="' + user_nick_name + '"><span>' + send_msg + '</span></li>'
+            $('#chatbox').append(info)
+        }
+        var msg_nums = [];
+
+        //等待服务器推送消息
+        namespace = '/flasksocketio';
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+
+        socket.on('server_response', function (res) {
+            res = JSON.parse(res);
+            lid = res.lid;
+            num_area = $('#'+lid).children('div').eq(0);
+            $('#'+lid).children('div').eq(2).children('p').eq(1).html(res.send_msg);
+            if($('#'+lid).hasClass('user_active')){
+                msg_nums[lid] = 0;
+                num_area.css('display','none');
+                if (res.user_nick_name != "{{data[0].user_nick_name}}") {
+                    create_chart('other', res);
+                    send_msg.value = '';
+                }
+            }else{
+                num_area.css('display','block');
+                if(msg_nums[lid]) {
+                    msg_nums[lid] = msg_nums[lid]+1
+                }else{
+                    msg_nums[lid] = 1;
+                }
+                num_area.html(msg_nums[lid]);
+            }
+
+        });
+
+        // 将所有聊天对象都加入房间
+        $('.user_list li').each(function (i) {
+            lid = $(this).attr('id');
+            //加入房间
+            socket.emit('join room', {'lid': lid});
+        });
+
         //获取聊天记录
         $(document).on('click', '.user_list li', function () {
+            $('#talkbox').css('display','block');
             lid = $(this).attr("id");
-            user_title=$(this).attr('title');
+            user_title = $(this).attr('title');
             $(this).addClass('user_active');
             $(this).siblings().removeClass('user_active');
+            $('#'+lid).children('div').eq(0).css('display','none');
+            msg_nums[lid] = 0;
             $('#chatbox').html('');
             //获取聊天记录
             $.get('/get_chat_records?user_id=' + user_id + '&lid=' + lid, function (data) {
                 $('.windows_top_box .user_title').html(user_title);
-                console.log(data);
                 $.each(data, function (k, v) {
-                     if (v.send_user_id == user_id){
-                         u = 'me'
-                     }else{
-                         u = 'other'
-                     }
-                    info = '<li class='+u+'><img src="/static/images/head/'+v.userinfo.pic_name+'" title="'+v.userinfo.user_nick_name+'"><span>'+v.content+'</span></li>'
-                     $('#chatbox').append(info)
+                    if (v.send_user_id == $('#user_id').val()) {
+                        u = 'me'
+                    } else {
+                        u = 'other'
+                    }
+                    info = '<li class=' + u + '><img src="/static/images/head/' + v.userinfo.pic_name + '" title="' + v.userinfo.user_nick_name + '"><span>' + v.content + '</span></li>'
+                    $('#chatbox').append(info)
 
 
                 })
-            },'json')
+            }, 'json')
         });
 
 
@@ -490,9 +535,20 @@
             if (msg.html() == '') {
                 layer.msg('消息不能为空');
             } else {
+                //用户id
+                var user_id = $('#user_id').val();
+                //用户易号
+                var user_no = $('#user_no').val();
+                var pic_name = "{{data[0].pic_name}}";
+                var user_nick_name = "{{data[0].user_nick_name}}";
+                lid = $('.user_active').attr('id')
                 chat = $('#chatbox');
                 talk = $('#talkbox');
-                chat.append('<li class="me"><img src="' + '/static/images/head/{{data[0].pic_name}}' +'"><span>' + msg.html() + '</span></li>');
+                namespace = '/flasksocketio';
+                var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + namespace);
+                content = {'lid':lid,'user_nick_name': user_nick_name, 'pic_name': pic_name, 'send_msg': msg.html()}
+                socket.emit('imessage', content);
+                create_chart('me', content);
                 msg.html('');
                 scrollTop = chat[0].scrollHeight;
                 chat.parent().scrollTop(scrollTop);
